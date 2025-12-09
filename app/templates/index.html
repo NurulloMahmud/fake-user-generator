@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake User Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e4e4e4;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid #2a2a4a;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 1rem;
+        }
+        
+        .controls {
+            background: #1e1e3f;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            font-size: 0.85rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        input, select {
+            padding: 12px 16px;
+            border: 1px solid #3a3a5a;
+            border-radius: 8px;
+            background: #12122a;
+            color: #fff;
+            font-size: 1rem;
+            min-width: 150px;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00d9ff;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00d9ff, #00a8cc);
+            color: #000;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #000;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #00d9ff;
+            color: #00d9ff;
+        }
+        
+        .info-bar {
+            background: #12122a;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-label {
+            color: #888;
+        }
+        
+        .info-value {
+            color: #00d9ff;
+            font-weight: 600;
+        }
+        
+        .table-container {
+            background: #1e1e3f;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #12122a;
+            padding: 15px;
+            text-align: left;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #888;
+            border-bottom: 2px solid #3a3a5a;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #2a2a4a;
+            font-size: 0.9rem;
+        }
+        
+        tr:hover {
+            background: rgba(0, 217, 255, 0.05);
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .user-gender {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        
+        .gender-male {
+            background: rgba(0, 150, 255, 0.2);
+            color: #00a8ff;
+        }
+        
+        .gender-female {
+            background: rgba(255, 100, 150, 0.2);
+            color: #ff6496;
+        }
+        
+        .coords {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            color: #00ff88;
+        }
+        
+        .physical {
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #888;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00d9ff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .benchmark-result {
+            background: #12122a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .benchmark-value {
+            font-size: 2rem;
+            color: #00ff88;
+            font-weight: 700;
+        }
+        
+        .benchmark-label {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .control-group {
+                width: 100%;
+            }
+            
+            input, select {
+                width: 100%;
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎭 Fake User Generator</h1>
+            <p class="subtitle">Generate realistic fake user data using SQL stored procedures</p>
+        </header>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="locale">Locale</label>
+                <select id="locale">
+                    {% for loc in locales %}
+                    <option value="{{ loc.code }}">{{ loc.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="seed">Seed</label>
+                <input type="number" id="seed" value="{{ default_seed }}" min="1" max="999999999">
+            </div>
+            
+            <div class="control-group">
+                <label for="count">Users per Batch</label>
+                <select id="count">
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+            
+            <button class="btn-primary" onclick="generateUsers()">Generate</button>
+            <button class="btn-secondary" onclick="nextBatch()">Next Batch →</button>
+            <button class="btn-outline" onclick="randomSeed()">🎲 Random Seed</button>
+            <button class="btn-outline" onclick="runBenchmark()">⚡ Benchmark</button>
+        </div>
+        
+        <div class="info-bar">
+            <div class="info-item">
+                <span class="info-label">Current Batch:</span>
+                <span class="info-value" id="currentBatch">0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Total Generated:</span>
+                <span class="info-value" id="totalGenerated">0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Seed:</span>
+                <span class="info-value" id="displaySeed">-</span>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>Address</th>
+                        <th>Contact</th>
+                        <th>Coordinates</th>
+                        <th>Physical</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable">
+                    <tr>
+                        <td colspan="7" class="loading">Click "Generate" to create fake users</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="benchmarkResult" class="benchmark-result" style="display: none;">
+            <div class="benchmark-value" id="benchmarkValue">-</div>
+            <div class="benchmark-label">users per second</div>
+        </div>
+    </div>
+    
+    <script>
+        let currentBatch = 0;
+        let totalGenerated = 0;
+        
+        async function generateUsers(resetBatch = true) {
+            if (resetBatch) {
+                currentBatch = 0;
+                totalGenerated = 0;
+            }
+            
+            const seed = document.getElementById('seed').value;
+            const count = document.getElementById('count').value;
+            const locale = document.getElementById('locale').value;
+            
+            document.getElementById('usersTable').innerHTML = '<tr><td colspan="7" class="loading">Generating users</td></tr>';
+            
+            try {
+                const response = await fetch(`/api/generate?seed=${seed}&batch=${currentBatch}&count=${count}&locale=${locale}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayUsers(data.users);
+                    totalGenerated += data.users.length;
+                    updateInfoBar(seed);
+                } else {
+                    document.getElementById('usersTable').innerHTML = `<tr><td colspan="7">Error: ${data.error}</td></tr>`;
+                }
+            } catch (error) {
+                document.getElementById('usersTable').innerHTML = `<tr><td colspan="7">Error: ${error.message}</td></tr>`;
+            }
+        }
+        
+        function displayUsers(users) {
+            const tbody = document.getElementById('usersTable');
+            tbody.innerHTML = '';
+            
+            users.forEach((user, index) => {
+                const globalIndex = currentBatch * parseInt(document.getElementById('count').value) + index + 1;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${globalIndex}</td>
+                    <td>
+                        <div class="user-name">${user.name.full}</div>
+                        <div style="font-size: 0.8rem; color: #888;">${user.contact.email}</div>
+                    </td>
+                    <td><span class="user-gender gender-${user.name.gender}">${user.name.gender}</span></td>
+                    <td>
+                        <div>${user.address.street}</div>
+                        <div style="font-size: 0.85rem; color: #aaa;">${user.address.city}, ${user.address.state_abbr || user.address.state} ${user.address.postal_code}</div>
+                    </td>
+                    <td>${user.contact.phone}</td>
+                    <td class="coords">${user.location.latitude}, ${user.location.longitude}</td>
+                    <td class="physical">
+                        ${user.physical.height_display} / ${user.physical.weight_display}<br>
+                        <span style="color: #888;">BMI: ${user.physical.bmi} | Eyes: ${user.physical.eye_color}</span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function updateInfoBar(seed) {
+            document.getElementById('currentBatch').textContent = currentBatch;
+            document.getElementById('totalGenerated').textContent = totalGenerated;
+            document.getElementById('displaySeed').textContent = seed;
+        }
+        
+        function nextBatch() {
+            currentBatch++;
+            generateUsers(false);
+        }
+        
+        function randomSeed() {
+            document.getElementById('seed').value = Math.floor(Math.random() * 999999) + 1;
+            generateUsers();
+        }
+        
+        async function runBenchmark() {
+            const locale = document.getElementById('locale').value;
+            const benchmarkDiv = document.getElementById('benchmarkResult');
+            benchmarkDiv.style.display = 'block';
+            document.getElementById('benchmarkValue').textContent = 'Running...';
+            
+            try {
+                const response = await fetch(`/api/benchmark?count=1000&locale=${locale}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('benchmarkValue').textContent = 
+                        data.benchmark.users_per_second.toLocaleString();
+                } else {
+                    document.getElementById('benchmarkValue').textContent = 'Error';
+                }
+            } catch (error) {
+                document.getElementById('benchmarkValue').textContent = 'Error';
+            }
+        }
+    </script>
+</body>
+</html>

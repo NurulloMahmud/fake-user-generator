@@ -1,4 +1,3 @@
-"""Database connection and query functions."""
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -7,7 +6,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def get_connection():
-    """Create a new database connection."""
     return psycopg2.connect(
         host=os.getenv('DB_HOST', 'localhost'),
         port=os.getenv('DB_PORT', '5432'),
@@ -17,7 +15,6 @@ def get_connection():
     )
 
 def get_locales():
-    """Get available locales from database."""
     conn = get_connection()
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -27,7 +24,6 @@ def get_locales():
         conn.close()
 
 def generate_users(seed: int, batch: int, count: int, locale: str):
-    """Generate fake users using stored procedure."""
     conn = get_connection()
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -40,7 +36,6 @@ def generate_users(seed: int, batch: int, count: int, locale: str):
         conn.close()
 
 def generate_users_json(seed: int, batch: int, count: int, locale: str):
-    """Generate fake users as JSON."""
     conn = get_connection()
     try:
         with conn.cursor() as cur:
@@ -54,7 +49,6 @@ def generate_users_json(seed: int, batch: int, count: int, locale: str):
         conn.close()
 
 def run_benchmark(count: int, locale: str):
-    """Run benchmark and return results."""
     conn = get_connection()
     try:
         with conn.cursor() as cur:

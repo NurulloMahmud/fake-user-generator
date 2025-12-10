@@ -1,4 +1,3 @@
-"""Fake User Generator - FastAPI Application."""
 from fastapi import FastAPI, Request, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -6,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 import random
 import os
 
-from database import get_locales, generate_users, generate_users_json, run_benchmark
+from .database import get_locales, generate_users, generate_users_json, run_benchmark
 
 app = FastAPI(
     title="Fake User Generator",
@@ -19,9 +18,7 @@ templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "t
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    """Render the main page."""
     locales = get_locales()
-    # Generate a random default seed
     default_seed = random.randint(1, 999999)
     return templates.TemplateResponse("index.html", {
         "request": request,
@@ -36,7 +33,6 @@ async def api_generate(
     count: int = Query(10, ge=1, le=100, description="Number of users to generate"),
     locale: str = Query("en_US", description="Locale code (en_US or de_DE)")
 ):
-    """Generate fake users and return as JSON."""
     try:
         users = generate_users_json(seed, batch, count, locale)
         return JSONResponse(content={
@@ -55,7 +51,6 @@ async def api_generate(
 
 @app.get("/api/locales")
 async def api_locales():
-    """Get available locales."""
     locales = get_locales()
     return JSONResponse(content={"locales": locales})
 
@@ -64,7 +59,6 @@ async def api_benchmark(
     count: int = Query(1000, ge=100, le=100000, description="Number of users to generate"),
     locale: str = Query("en_US", description="Locale code")
 ):
-    """Run benchmark and return performance metrics."""
     try:
         result = run_benchmark(count, locale)
         return JSONResponse(content={
@@ -79,7 +73,6 @@ async def api_benchmark(
 
 @app.get("/health")
 async def health():
-    """Health check endpoint."""
     return {"status": "healthy"}
 
 if __name__ == "__main__":

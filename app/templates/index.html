@@ -96,17 +96,17 @@
             font-weight: 600;
         }
         
-        button:hover {
+        button:hover:not(:disabled) {
             transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         .btn-primary {
             background: linear-gradient(135deg, #00d9ff, #00a8cc);
-            color: #000;
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #00ff88, #00cc6a);
             color: #000;
         }
         
@@ -116,13 +116,30 @@
             color: #00d9ff;
         }
         
+        .btn-nav {
+            background: #2a2a4a;
+            color: #fff;
+            min-width: 120px;
+        }
+        
+        .btn-nav:hover:not(:disabled) {
+            background: #3a3a5a;
+        }
+        
+        /* Stats and Benchmark Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
         .info-bar {
             background: #12122a;
             border-radius: 8px;
-            padding: 15px 20px;
-            margin-bottom: 25px;
+            padding: 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
@@ -130,17 +147,79 @@
         
         .info-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
         }
         
         .info-label {
             color: #888;
+            font-size: 0.75rem;
+            text-transform: uppercase;
         }
         
         .info-value {
             color: #00d9ff;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+        
+        .info-value.locale-display {
+            font-size: 1rem;
+        }
+        
+        .benchmark-box {
+            background: #12122a;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .benchmark-result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .benchmark-value {
+            font-size: 1.8rem;
+            color: #00ff88;
+            font-weight: 700;
+        }
+        
+        .benchmark-label {
+            color: #888;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        
+        .benchmark-btn {
+            background: linear-gradient(135deg, #ff9500, #ff5e00);
+            color: #000;
+            white-space: nowrap;
+        }
+        
+        /* Pagination Controls */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .page-info {
+            color: #888;
+            font-size: 0.9rem;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .page-info strong {
+            color: #00d9ff;
         }
         
         .table-container {
@@ -216,7 +295,7 @@
             color: #888;
         }
         
-        .loading::after {
+        .loading.active::after {
             content: '';
             display: inline-block;
             width: 20px;
@@ -233,23 +312,46 @@
             to { transform: rotate(360deg); }
         }
         
-        .benchmark-result {
-            background: #12122a;
+        /* Tooltip for seed */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 280px;
+            background-color: #333;
+            color: #fff;
+            text-align: left;
             border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-            text-align: center;
+            padding: 12px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -140px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         
-        .benchmark-value {
-            font-size: 2rem;
-            color: #00ff88;
-            font-weight: 700;
+        .tooltip .tooltip-text::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
         }
         
-        .benchmark-label {
-            color: #888;
-            font-size: 0.9rem;
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
         }
 
         @media (max-width: 768px) {
@@ -265,8 +367,16 @@
                 width: 100%;
             }
             
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+            
             .table-container {
                 overflow-x: auto;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
             }
         }
     </style>
@@ -281,21 +391,27 @@
         <div class="controls">
             <div class="control-group">
                 <label for="locale">Locale</label>
-                <select id="locale">
+                <select id="locale" onchange="generateUsers()">
                     {% for loc in locales %}
-                    <option value="{{ loc.code }}">{{ loc.name }}</option>
+                    <option value="{{ loc.code }}" data-name="{{ loc.name }}">{{ loc.name }}</option>
                     {% endfor %}
                 </select>
             </div>
             
-            <div class="control-group">
-                <label for="seed">Seed</label>
+            <div class="control-group tooltip">
+                <label for="seed">Seed Value ℹ️</label>
+                <span class="tooltip-text">
+                    <strong>What is a seed?</strong><br>
+                    A seed ensures <em>reproducibility</em>. The same seed always generates the exact same users in the same order.<br><br>
+                    <strong>Why use it?</strong><br>
+                    Share a seed with others to reproduce identical test data. Great for debugging and testing!
+                </span>
                 <input type="number" id="seed" value="{{ default_seed }}" min="1" max="999999999">
             </div>
             
             <div class="control-group">
-                <label for="count">Users per Batch</label>
-                <select id="count">
+                <label for="count">Users per Page</label>
+                <select id="count" onchange="generateUsers()">
                     <option value="10" selected>10</option>
                     <option value="20">20</option>
                     <option value="50">50</option>
@@ -303,25 +419,48 @@
                 </select>
             </div>
             
-            <button class="btn-primary" onclick="generateUsers()">Generate</button>
-            <button class="btn-secondary" onclick="nextBatch()">Next Batch →</button>
+            <button class="btn-primary" onclick="generateUsers()">🔄 Generate</button>
             <button class="btn-outline" onclick="randomSeed()">🎲 Random Seed</button>
-            <button class="btn-outline" onclick="runBenchmark()">⚡ Benchmark</button>
         </div>
         
-        <div class="info-bar">
-            <div class="info-item">
-                <span class="info-label">Current Batch:</span>
-                <span class="info-value" id="currentBatch">0</span>
+        <!-- Stats and Benchmark Row -->
+        <div class="stats-row">
+            <div class="info-bar">
+                <div class="info-item">
+                    <span class="info-value" id="displaySeed">-</span>
+                    <span class="info-label">Seed</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-value" id="currentPage">-</span>
+                    <span class="info-label">Current Page</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-value" id="usersPerPage">10</span>
+                    <span class="info-label">Per Page</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-value locale-display" id="displayLocale">-</span>
+                    <span class="info-label">Region</span>
+                </div>
             </div>
-            <div class="info-item">
-                <span class="info-label">Total Generated:</span>
-                <span class="info-value" id="totalGenerated">0</span>
+            
+            <div class="benchmark-box">
+                <div class="benchmark-result">
+                    <span class="benchmark-value" id="benchmarkValue">-</span>
+                    <span class="benchmark-label">Users / Second</span>
+                </div>
+                <button class="btn-primary benchmark-btn" onclick="runBenchmark()">⚡ Run Benchmark</button>
             </div>
-            <div class="info-item">
-                <span class="info-label">Seed:</span>
-                <span class="info-value" id="displaySeed">-</span>
-            </div>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="pagination">
+            <button class="btn-nav" id="prevBtn" onclick="prevPage()" disabled>← Previous</button>
+            <span class="page-info">
+                Page <strong id="pageNum">1</strong> — 
+                Users <strong id="rangeStart">1</strong> to <strong id="rangeEnd">10</strong>
+            </span>
+            <button class="btn-nav" id="nextBtn" onclick="nextPage()">Next →</button>
         </div>
         
         <div class="table-container">
@@ -344,28 +483,30 @@
                 </tbody>
             </table>
         </div>
-        
-        <div id="benchmarkResult" class="benchmark-result" style="display: none;">
-            <div class="benchmark-value" id="benchmarkValue">-</div>
-            <div class="benchmark-label">users per second</div>
-        </div>
     </div>
     
     <script>
-        let currentBatch = 0;
-        let totalGenerated = 0;
+        // Current state - using 0-indexed internally, display as 1-indexed to user
+        let currentBatch = 0;  // 0-indexed internally
+        let currentCount = 10;
         
-        async function generateUsers(resetBatch = true) {
-            if (resetBatch) {
+        // Locale name mapping
+        const localeNames = {
+            'en_US': 'English (US)',
+            'de_DE': 'German (Germany)'
+        };
+        
+        async function generateUsers(resetPage = true) {
+            if (resetPage) {
                 currentBatch = 0;
-                totalGenerated = 0;
             }
             
             const seed = document.getElementById('seed').value;
             const count = document.getElementById('count').value;
             const locale = document.getElementById('locale').value;
+            currentCount = parseInt(count);
             
-            document.getElementById('usersTable').innerHTML = '<tr><td colspan="7" class="loading">Generating users</td></tr>';
+            document.getElementById('usersTable').innerHTML = '<tr><td colspan="7" class="loading active">Generating users</td></tr>';
             
             try {
                 const response = await fetch(`/api/generate?seed=${seed}&batch=${currentBatch}&count=${count}&locale=${locale}`);
@@ -373,8 +514,8 @@
                 
                 if (data.success) {
                     displayUsers(data.users);
-                    totalGenerated += data.users.length;
-                    updateInfoBar(seed);
+                    updateInfoBar(seed, locale);
+                    updatePagination();
                 } else {
                     document.getElementById('usersTable').innerHTML = `<tr><td colspan="7">Error: ${data.error}</td></tr>`;
                 }
@@ -388,7 +529,7 @@
             tbody.innerHTML = '';
             
             users.forEach((user, index) => {
-                const globalIndex = currentBatch * parseInt(document.getElementById('count').value) + index + 1;
+                const globalIndex = currentBatch * currentCount + index + 1;
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${globalIndex}</td>
@@ -412,15 +553,40 @@
             });
         }
         
-        function updateInfoBar(seed) {
-            document.getElementById('currentBatch').textContent = currentBatch;
-            document.getElementById('totalGenerated').textContent = totalGenerated;
+        function updateInfoBar(seed, locale) {
             document.getElementById('displaySeed').textContent = seed;
+            document.getElementById('currentPage').textContent = currentBatch + 1;  // Display as 1-indexed
+            document.getElementById('usersPerPage').textContent = currentCount;
+            
+            // Get friendly locale name from dropdown
+            const localeSelect = document.getElementById('locale');
+            const selectedOption = localeSelect.options[localeSelect.selectedIndex];
+            document.getElementById('displayLocale').textContent = selectedOption.dataset.name || localeNames[locale] || locale;
         }
         
-        function nextBatch() {
+        function updatePagination() {
+            const pageNum = currentBatch + 1;  // Display as 1-indexed
+            const rangeStart = currentBatch * currentCount + 1;
+            const rangeEnd = rangeStart + currentCount - 1;
+            
+            document.getElementById('pageNum').textContent = pageNum;
+            document.getElementById('rangeStart').textContent = rangeStart;
+            document.getElementById('rangeEnd').textContent = rangeEnd;
+            
+            // Enable/disable previous button (disabled on page 1)
+            document.getElementById('prevBtn').disabled = currentBatch === 0;
+        }
+        
+        function nextPage() {
             currentBatch++;
             generateUsers(false);
+        }
+        
+        function prevPage() {
+            if (currentBatch > 0) {
+                currentBatch--;
+                generateUsers(false);
+            }
         }
         
         function randomSeed() {
@@ -430,9 +596,7 @@
         
         async function runBenchmark() {
             const locale = document.getElementById('locale').value;
-            const benchmarkDiv = document.getElementById('benchmarkResult');
-            benchmarkDiv.style.display = 'block';
-            document.getElementById('benchmarkValue').textContent = 'Running...';
+            document.getElementById('benchmarkValue').textContent = '...';
             
             try {
                 const response = await fetch(`/api/benchmark?count=1000&locale=${locale}`);
@@ -440,7 +604,7 @@
                 
                 if (data.success) {
                     document.getElementById('benchmarkValue').textContent = 
-                        data.benchmark.users_per_second.toLocaleString();
+                        Math.round(data.benchmark.users_per_second).toLocaleString();
                 } else {
                     document.getElementById('benchmarkValue').textContent = 'Error';
                 }

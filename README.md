@@ -26,18 +26,8 @@ A web application that generates realistic fake user data using **SQL stored pro
 ## Screenshot
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Fake User Generator                        │
-├─────────────────────────────────────────────────────────────────┤
-│  [Locale ▼]  [Seed: 12345]  [Per Page ▼]  [Generate] [Random]   │
-├─────────────────────────────────────────────────────────────────┤
-│   SEED: 12345  │  PAGE: 1  │  PER PAGE: 10  │  English (US)     │
-├─────────────────────────────────────────────────────────────────┤
-│  #  │ Name              │ Gender │ Address          │ Contact   │
-│  1  │ Antonio Henderson │ Male   │ 123 Oak St, NY   │ 555-1234  │
-│  2  │ Jennifer Butler   │ Female │ 456 Main Ave, CA │ 555-5678  │
-│ ... │ ...               │ ...    │ ...              │ ...       │
-└─────────────────────────────────────────────────────────────────┘
+<img width="1377" height="879" alt="Screenshot 2025-12-10 at 9 34 51 AM" src="https://github.com/user-attachments/assets/cc07d0ff-7679-43b1-980d-1628b4d70388" />
+
 ```
 
 ## Quick Start

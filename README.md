@@ -25,10 +25,8 @@ A web application that generates realistic fake user data using **SQL stored pro
 
 ## Screenshot
 
-```
 <img width="1377" height="879" alt="Screenshot 2025-12-10 at 9 34 51 AM" src="https://github.com/user-attachments/assets/cc07d0ff-7679-43b1-980d-1628b4d70388" />
 
-```
 
 ## Quick Start
 

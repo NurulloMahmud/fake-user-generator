@@ -58,7 +58,7 @@ The combination of all inputs creates a unique hash that's converted to the desi
 
 Creates a deterministic hash from seed components.
 
-```sql
+```sql 
 faker_hash_seed(
     p_seed BIGINT,      -- Base seed
     p_batch INTEGER,    -- Batch index
